@@ -62,5 +62,13 @@ namespace Reflex.Injectors
 
 			return container;
 		}
+		
+		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+		private static void RunOnStart()
+		{
+		 	Application.quitting -= OnApplicationQuitting;
+		 	UnityStaticEvents.OnSceneEarlyAwake -= OnSceneEarlyAwake;
+			_container = null;
+		}
 	}
 }
