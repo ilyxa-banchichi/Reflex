@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace Reflex.Scripts.Events
 {
-    public static class StaticEventManager
+    internal static class StaticEventManager
     {
         public static event Action Quitting;
         public static event Action<Scene> OnSceneEarlyAwake;
