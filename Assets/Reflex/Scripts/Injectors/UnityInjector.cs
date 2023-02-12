@@ -15,7 +15,7 @@ namespace Reflex.Injectors
 		private static void BeforeAwakeOfFirstSceneOnly()
 		{
 			var projectContainer = CreateProjectContainer();
-			UnityStaticEvents.OnSceneEarlyAwake += scene =>
+			StaticEventManager.OnSceneEarlyAwake += scene =>
 			{
 				var sceneContainer = CreateSceneContainer(scene, projectContainer);
 				SceneInjector.Inject(scene, sceneContainer);
@@ -26,7 +26,7 @@ namespace Reflex.Injectors
 		{
 			var container = ContainerTree.Root = new Container("ProjectContainer");
 			
-			Application.quitting += () =>
+			StaticEventManager.Quitting += () =>
 			{
 				ContainerTree.Root = null;
 				container.Dispose();
@@ -50,7 +50,7 @@ namespace Reflex.Injectors
 			}); 
 			
 			// If app is being closed, all containers will be disposed by depth first search starting from project container root, see UnityInjector.cs
-			Application.quitting += () =>
+			StaticEventManager.Quitting += () =>
 			{
 				subscription.Dispose();
 			};
@@ -61,14 +61,6 @@ namespace Reflex.Injectors
 			}
 
 			return container;
-		}
-		
-		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-		private static void RunOnStart()
-		{
-		 	Application.quitting -= OnApplicationQuitting;
-		 	UnityStaticEvents.OnSceneEarlyAwake -= OnSceneEarlyAwake;
-			_container = null;
 		}
 	}
 }
