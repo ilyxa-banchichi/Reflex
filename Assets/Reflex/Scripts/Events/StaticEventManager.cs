@@ -8,6 +8,7 @@ namespace Reflex.Scripts.Events
     {
         public static event Action Quitting;
         public static event Action<Scene> OnSceneEarlyAwake;
+        public static event Action OnContainerRebuild;
         
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 		private static void RunOnStart()
@@ -27,15 +28,18 @@ namespace Reflex.Scripts.Events
         {
             Application.quitting += RaiseQuitting;
             UnityStaticEvents.OnSceneEarlyAwake += RaiseOnSceneEarlyAwake;
+            UnityStaticEvents.OnContainerRebuild += RaiseOnContainerRebuild;
         }
         
         private static void UnsubscribeOnApplicationEvents()
         {
             Application.quitting -= RaiseQuitting;
             UnityStaticEvents.OnSceneEarlyAwake -= RaiseOnSceneEarlyAwake;
+            UnityStaticEvents.OnContainerRebuild -= RaiseOnContainerRebuild;
         }
         
         private static void RaiseQuitting() => Quitting?.Invoke();
         private static void RaiseOnSceneEarlyAwake(Scene scene) => OnSceneEarlyAwake?.Invoke(scene);
+        private static void RaiseOnContainerRebuild() => OnContainerRebuild?.Invoke();
     }
 }
