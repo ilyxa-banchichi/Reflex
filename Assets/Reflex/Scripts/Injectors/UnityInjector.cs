@@ -11,14 +11,16 @@ namespace Reflex.Injectors
 {
 	internal static class UnityInjector
 	{
+		private static Container _projectContainer;
+		
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 		private static void BeforeAwakeOfFirstSceneOnly()
 		{
-			var projectContainer = CreateProjectContainer();
+			CreateProjectContainer();
 			
 			StaticEventManager.OnSceneEarlyAwake += scene =>
 			{
-				var sceneContainer = CreateSceneContainer(scene, projectContainer);
+				var sceneContainer = CreateSceneContainer(scene, _projectContainer);
 				SceneInjector.Inject(scene, sceneContainer);
 			};
 			
@@ -27,16 +29,16 @@ namespace Reflex.Injectors
 
 		private static Container CreateProjectContainer()
 		{
-			var container = ContainerTree.Root = new Container("ProjectContainer");
+			_projectContainer = ContainerTree.Root = new Container("ProjectContainer");
 
 			StaticEventManager.Quitting += DisposeProjectContainer;
 
 			if (ResourcesUtilities.TryLoad<ProjectContext>("ProjectContext", out var projectContext))
 			{
-				projectContext.InstallBindings(container);
+				projectContext.InstallBindings(_projectContainer);
 			}
 
-			return container;
+			return _projectContainer;
 		}
 		
 		private static Container CreateSceneContainer(Scene scene, Container projectContainer)
@@ -70,7 +72,7 @@ namespace Reflex.Injectors
 
 		private static void DisposeProjectContainer()
 		{
-			ContainerTree.Root.Dispose();
+			_projectContainer.Dispose();
 			ContainerTree.Root = null;
 		}
 	}
