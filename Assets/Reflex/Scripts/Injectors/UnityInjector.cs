@@ -17,28 +17,20 @@ namespace Reflex.Injectors
 		private static void BeforeAwakeOfFirstSceneOnly()
 		{
 			CreateProjectContainer();
-			
-			StaticEventManager.OnSceneEarlyAwake += scene =>
-			{
-				var sceneContainer = CreateSceneContainer(scene, _projectContainer);
-				SceneInjector.Inject(scene, sceneContainer);
-			};
-			
+
+			StaticEventManager.OnSceneEarlyAwake += OnSceneEarlyAwake;
 			StaticEventManager.OnContainerRebuild += OnContainerRebuild;
 		}
 
-		private static Container CreateProjectContainer()
+		private static void CreateProjectContainer()
 		{
 			_projectContainer = ContainerTree.Root = new Container("ProjectContainer");
-
 			StaticEventManager.Quitting += DisposeProjectContainer;
 
 			if (ResourcesUtilities.TryLoad<ProjectContext>("ProjectContext", out var projectContext))
 			{
 				projectContext.InstallBindings(_projectContainer);
 			}
-
-			return _projectContainer;
 		}
 		
 		private static Container CreateSceneContainer(Scene scene, Container projectContainer)
@@ -74,6 +66,12 @@ namespace Reflex.Injectors
 		{
 			_projectContainer.Dispose();
 			ContainerTree.Root = null;
+		}
+
+		private static void OnSceneEarlyAwake(Scene scene)
+		{
+			var sceneContainer = CreateSceneContainer(scene, _projectContainer);
+			SceneInjector.Inject(scene, sceneContainer);
 		}
 	}
 }
